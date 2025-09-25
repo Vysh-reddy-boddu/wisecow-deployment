@@ -1,25 +1,48 @@
-- name: Set up Kubeconfig
-  run: |
-    mkdir -p $HOME/.kube
-    cat <<EOF > $HOME/.kube/config
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: ${{ secrets.KUBE_CA }}
-    server: https://127.0.0.1:32771
-  name: minikube
-contexts:
-- context:
-    cluster: minikube
-    namespace: default
-    user: minikube
-  name: minikube
-current-context: minikube
-kind: Config
-users:
-- name: minikube
-  user:
-    client-certificate-data: ${{ secrets.KUBE_CLIENT_CERT }}
-    client-key-data: ${{ secrets.KUBE_CLIENT_KEY }}
-EOF
+name: Wisecow CI/CD with Kind
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Docker (already on GitHub runner but good to confirm)
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      # 3. Build Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t wisecow:latest .
+
+      # 4. Install Kind & kubectl
+      - name: Set up Kind (Kubernetes in Docker)
+        uses: helm/kind-action@v1.8.0
+        with:
+          version: v0.20.0  # Kind version
+          node_image: kindest/node:v1.27.3
+
+      # 5. Load Docker image into Kind
+      - name: Load Docker image into Kind
+        run: |
+          kind load docker-image wisecow:latest
+
+      # 6. Deploy Wisecow app
+      - name: Deploy Wisecow
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+
+      # 7. Verify deployment
+      - name: Verify Pods
+        run: |
+          kubectl get pods -o wide
 
