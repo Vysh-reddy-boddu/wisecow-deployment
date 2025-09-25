@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: wisecow
-        image: wisecow-app:latest
-        imagePullPolicy: Never   # <-- use local image only
+        image: vyshnaviboddu/wisecow-app:latest
         ports:
         - containerPort: 3000
+        imagePullPolicy: Always
 
