@@ -40,6 +40,7 @@ jobs:
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
+          kubectl rollout status deployment/wisecow-deployment --timeout=120s
 
       # 7. Verify deployment
       - name: Verify Pods
