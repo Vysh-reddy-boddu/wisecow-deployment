@@ -45,9 +45,9 @@ jobs:
       # 7. Deploy Wisecow app
       - name: Deploy Wisecow
         run: |
-          kubectl apply -f k8s/deployment.yaml --validate=false
-          kubectl apply -f k8s/service.yaml --validate=false
-          kubectl rollout status deployment/wisecow-deployment --timeout=120s
+          kubectl apply -f k8s/deployment.yaml --validate=false --kubeconfig $HOME/.kube/config
+          kubectl apply -f k8s/service.yaml --validate=false --kubeconfig $HOME/.kube/config
+          kubectl rollout status deployment/wisecow-deployment --timeout=120s --kubeconfig $HOME/.kube/config
 
       # 8. Verify deployment
       - name: Verify Pods
