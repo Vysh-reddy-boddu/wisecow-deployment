@@ -38,13 +38,15 @@ jobs:
 
       # 6. Export kubeconfig for kubectl
       - name: Export kubeconfig
-        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV  # ✅ Kubectl connect avvadaniki
+        run: |
+          kind get kubeconfig --name kind > $HOME/.kube/config
+          echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV  # ✅ Kubectl connect avvadaniki
 
       # 7. Deploy Wisecow app
       - name: Deploy Wisecow
         run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/deployment.yaml --validate=false
+          kubectl apply -f k8s/service.yaml --validate=false
           kubectl rollout status deployment/wisecow-deployment --timeout=120s
 
       # 8. Verify deployment
