@@ -24,23 +24,23 @@ jobs:
           docker build -t wisecow:latest .
 
       # 4. Install Kind & kubectl
-      - name: Set up Kind (Kubernetes in Docker)
+      - name: Set up Kind 
         uses: helm/kind-action@v1.8.0
         with:
           version: v0.20.0
           node_image: kindest/node:v1.27.3
-          cluster_name: kind   # ✅ Cluster name add cheyyali
+          cluster_name: kind   
 
       # 5. Load Docker image into Kind
       - name: Load Docker image into Kind
-        run: |
-          kind load docker-image wisecow:latest --name kind  # ✅ Cluster name reference
+        run: kind load docker-image wisecow:latest --name kind  
 
       # 6. Export kubeconfig for kubectl
       - name: Export kubeconfig
         run: |
           kind get kubeconfig --name kind > $HOME/.kube/config
-          echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV  # ✅ Kubectl connect avvadaniki
+          echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
+          kubectl wait --for=condition=Ready nodes --all --timeout=120s
 
       # 7. Deploy Wisecow app
       - name: Deploy Wisecow
